@@ -1,0 +1,852 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#161511">
+<title>Housemates — Tasks</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235DBB8A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 10.5 12 3l9 7.5'/%3E%3Cpath d='M5 9.5V21h14V9.5'/%3E%3Cpath d='M9.5 21v-6h5v6'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#161511; --surface:#1E1D18; --raise:#26251F; --input:#171611;
+  --ink:#EDEAE0; --muted:#ABA698; --faint:#8A8577;
+  --line:#2E2D26; --line2:#272620;
+  --accent:#5DBB8A; --accent-strong:#4CAF82; --accent-ink:#8AD8AC;
+  --accent-soft:rgba(93,187,138,.14); --on-accent:#0F2418;
+  --warn:#E0B45C; --warn-soft:rgba(224,180,92,.14);
+  --danger:#E07A6C; --danger-strong:#E07A6C; --danger-soft:rgba(224,122,108,.14); --on-danger:#2B120E;
+  --carta:#64A7E0; --plastica:#E3B54A; --vetro:#58B583; --umido:#B5875A; --indiff:#9A968C;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scrollbar-width:thin;scrollbar-color:#3B3A31 transparent}
+::selection{background:rgba(93,187,138,.32)}
+body{font:15px/1.5 'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}
+body.noScroll{overflow:hidden}
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(1100px 560px at 85% -10%, rgba(93,187,138,.06), transparent 60%),
+             radial-gradient(900px 480px at -10% 0%, rgba(224,180,92,.045), transparent 55%), var(--bg)}
+.grain{position:fixed;inset:0;z-index:200;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");background-size:180px}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input,select{font:inherit;color:inherit}
+[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ic{width:16px;height:16px;flex:none}
+.eyebrow{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+#topbar{position:sticky;top:0;z-index:50;background:rgba(22,21,17,.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid transparent;transition:border-color .25s}
+#topbar.scrolled{border-bottom-color:var(--line)}
+.tb-in{max-width:680px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:0 20px;height:58px}
+.brand{display:flex;gap:9px;align-items:center;font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:19px;letter-spacing:-.01em}
+.brand .ic{width:20px;height:20px;color:var(--accent)}
+.tb-sp{flex:1}
+#hdrCount{font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;padding:4px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent-ink)}
+#hdrCount.ok{background:var(--accent-strong);color:var(--on-accent)}
+#adminChip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;padding:5px 11px;border:1px solid var(--line);border-radius:999px;background:var(--surface);transition:.15s}
+#adminChip:hover{border-color:var(--accent);background:var(--accent-soft)}
+.adot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+
+main{max-width:680px;margin:0 auto;padding:26px 20px 40px;position:relative;z-index:1}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:0 1px 2px rgba(0,0,0,.3),0 12px 32px -24px rgba(0,0,0,.6)}
+
+#weekCard{padding:22px 22px 18px}
+.wtop{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.chips{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--raise);color:var(--muted)}
+.chip .ic{width:13px;height:13px}
+.chip.soon{background:var(--warn-soft);color:var(--warn)}
+.chip.ok{background:var(--accent-soft);color:var(--accent-ink)}
+.wbig{display:flex;align-items:baseline;gap:12px;margin-top:14px;position:relative}
+.nums{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:46px;line-height:1;letter-spacing:-.01em}
+.nums .of{font-size:26px;color:var(--faint);font-weight:500;margin-left:6px}
+#weekCard.complete .nums b{color:var(--accent)}
+.wlabel{font-size:12.5px;color:var(--muted);line-height:1.25}
+.spark{position:absolute;right:2px;top:-4px;color:var(--plastica);opacity:0;transform:scale(.4) rotate(-25deg);transition:.45s cubic-bezier(.34,1.56,.64,1)}
+.spark .ic{width:26px;height:26px}
+.spark.show{opacity:1;transform:none}
+.bar{height:8px;border-radius:99px;background:#2A2921;margin-top:16px;overflow:hidden}
+.bar>span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#3E8E68,#6FCF9B);transition:width .6s cubic-bezier(.22,1,.36,1)}
+#weekCard.complete .bar>span{box-shadow:0 0 12px rgba(93,187,138,.4)}
+.wsub{margin-top:10px;font-size:13px;color:var(--muted)}
+.wsub.ok{color:var(--accent-ink);font-weight:600}
+.wacts{display:flex;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line2);flex-wrap:wrap}
+.ghost{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:500;padding:7px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);transition:.15s}
+.ghost:hover{background:var(--raise);border-color:#3A3930}
+.ghost:active{transform:scale(.97)}
+.ghost .ic{width:15px;height:15px;color:var(--muted)}
+
+.person{margin-top:14px;overflow:hidden}
+.phead{display:flex;align-items:center;gap:11px;padding:13px 18px}
+.avatar{width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:600;flex:none}
+.avatar.sm{width:26px;height:26px;font-size:12px}
+.pname{font-weight:600;font-size:15px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pname.dim{color:var(--muted);font-weight:500}
+.tag{margin-left:8px;font-size:11px;font-weight:600;color:#d6458f;background:rgba(214,69,143,.14);border-radius:99px;padding:1px 8px;vertical-align:1px}
+.pill{font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--muted);background:var(--raise);padding:3px 9px;border-radius:999px;flex:none}
+.pill.ok{background:var(--accent-soft);color:var(--accent-ink)}
+.awayCard{display:flex;align-items:center;gap:11px;padding:13px 18px}
+.awayCard .avatar{opacity:.55}
+.awayTag{display:inline-flex;gap:6px;align-items:center;font-size:12.5px;color:var(--muted);background:var(--raise);padding:4px 10px;border-radius:999px;flex:none}
+.awayTag .ic{width:13px;height:13px}
+.task{display:flex;align-items:center;gap:10px;border-top:1px solid var(--line2);padding:0 18px;transition:background .2s}
+.task:hover{background:#23221B}
+.tmain{display:flex;align-items:center;gap:12px;flex:1;min-width:0;padding:12px 0;cursor:pointer;position:relative}
+.tmain input{position:absolute;opacity:0;width:1px;height:1px}
+.box{width:22px;height:22px;border-radius:8px;border:1.5px solid #4A493D;background:var(--input);display:inline-flex;align-items:center;justify-content:center;flex:none;transition:background .2s,border-color .2s}
+.box .tick{width:14px;height:14px;color:var(--on-accent);stroke-width:2.6}
+.tick path{stroke-dasharray:24;stroke-dashoffset:24;transition:stroke-dashoffset .22s ease .04s}
+.tmain input:checked+.box{background:var(--accent-strong);border-color:var(--accent-strong)}
+.tmain input:checked+.box .tick path{stroke-dashoffset:0}
+.tmain input:focus-visible+.box{box-shadow:0 0 0 3px var(--accent-soft);border-color:var(--accent)}
+.tname{font-size:14.5px;font-weight:500;display:flex;align-items:center;gap:8px;transition:color .25s;min-width:0}
+.dot{width:8px;height:8px;border-radius:50%;flex:none}
+.task.done .tname{color:var(--faint);text-decoration:line-through;text-decoration-color:#55524A;text-decoration-thickness:1px}
+.task.done .dot{opacity:.45}
+.assign{appearance:none;-webkit-appearance:none;font-size:12.5px;font-weight:500;color:var(--muted);border:1px solid var(--line);border-radius:8px;max-width:110px;cursor:pointer;transition:.15s;flex:none;
+  background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ABA698' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 7px center/11px;padding:4px 24px 4px 9px}
+.assign:hover{border-color:#4A493D;color:var(--ink)}
+.assign option{background:var(--surface);color:var(--ink)}
+.noneRow{padding:12px 18px;border-top:1px solid var(--line2);font-size:13px;color:var(--faint)}
+
+#historySec{margin-top:26px}
+.hhead{display:flex;width:100%;align-items:center;justify-content:space-between;padding:4px 2px}
+.hhead .ic{color:var(--muted);transition:transform .3s}
+.hhead .closed{transform:rotate(-90deg)}
+.hwrap{display:grid;grid-template-rows:1fr;transition:grid-template-rows .35s cubic-bezier(.22,1,.36,1)}
+.hwrap.closed{grid-template-rows:0fr}
+.hinner{overflow:hidden;min-height:0}
+.hrow{padding:11px 2px;border-bottom:1px solid var(--line2)}
+.htop{display:flex;align-items:center;gap:12px}
+.hlabel{font-size:13px;font-weight:500;flex:1}
+.hbar{width:64px;height:5px;border-radius:99px;background:var(--raise);overflow:hidden;flex:none}
+.hbar>span{display:block;height:100%;background:#58B583;border-radius:99px}
+.hcount{font-size:12.5px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums;width:40px;text-align:right}
+.hper{font-size:12px;color:var(--faint);margin-top:4px}
+.hmore{font-size:12px;font-weight:500;color:var(--muted);padding:9px 2px}
+.hmore:hover{color:var(--ink)}
+
+.foot{max-width:680px;margin:0 auto;padding:6px 20px 34px;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--faint);position:relative;z-index:1;gap:12px}
+.syncWrap{display:inline-flex;align-items:center;gap:7px;min-width:0}
+.syncDot{width:7px;height:7px;border-radius:50%;background:#6E6A5E;flex:none}
+.syncDot.synced{background:var(--accent)}
+.syncDot.busy{background:var(--warn);animation:blink 1.2s infinite}
+.syncDot.off{background:var(--danger)}
+@keyframes blink{50%{opacity:.3}}
+.notice{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:24px;color:var(--muted)}
+.notice b{color:var(--ink)}
+
+#scrim{position:fixed;inset:0;background:rgba(8,8,6,.62);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .3s;z-index:70}
+#scrim.show{opacity:1;pointer-events:auto}
+#drawer{position:fixed;top:0;right:0;bottom:0;width:min(380px,100vw);background:var(--surface);border-left:1px solid var(--line);box-shadow:-16px 0 48px -24px rgba(0,0,0,.7);transform:translateX(105%);transition:transform .4s cubic-bezier(.22,1,.36,1);z-index:80;display:flex;flex-direction:column}
+#drawer.open{transform:none}
+.dhead{display:flex;justify-content:space-between;align-items:flex-start;padding:18px 20px;border-bottom:1px solid var(--line2)}
+.dtitle{font-family:'Fraunces',Georgia,serif;font-size:21px;font-weight:600}
+.dsub{font-size:12px;color:var(--muted);margin-top:2px}
+.iconBtn{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:10px;color:var(--muted);transition:.15s;flex:none}
+.iconBtn:hover{background:var(--raise);color:var(--ink)}
+.dbody{flex:1;min-height:0;overflow-y:auto;padding:18px 20px 22px}
+.secLbl{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:22px 0 4px}
+.secLbl:first-child{margin-top:0}
+.prow{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--line2)}
+.prow .nm{flex:1;font-size:14px;font-weight:500}
+.awayLbl{font-size:11px;color:var(--faint)}
+.sw{position:relative;display:inline-flex;flex:none;cursor:pointer}
+.sw input{position:absolute;opacity:0;width:1px;height:1px}
+.sw .tr{width:34px;height:20px;border-radius:99px;background:#3A3930;transition:background .2s;display:block;position:relative}
+.sw .kn{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#F5F2E8;box-shadow:0 1px 2px rgba(0,0,0,.45);transition:transform .2s cubic-bezier(.22,1,.36,1)}
+.sw input:checked+.tr{background:#D9A94F}
+.sw input:checked+.tr .kn{transform:translateX(14px)}
+.sw input:focus-visible+.tr{box-shadow:0 0 0 3px var(--accent-soft)}
+.primary{display:inline-flex;align-items:center;justify-content:center;gap:7px;background:var(--accent-strong);color:var(--on-accent);font-size:13.5px;font-weight:600;padding:9px 14px;border-radius:10px;transition:.15s}
+.primary:hover{background:var(--accent)}
+.hint{font-size:11.5px;color:var(--faint);line-height:1.55;margin-top:9px}
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.tool{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;padding:10px 12px;border:1px solid var(--line);border-radius:11px;background:var(--surface);transition:.15s;text-align:left}
+.tool:hover{background:var(--raise)}
+.tool:active{transform:scale(.97)}
+.tool .ic{width:15px;height:15px;color:var(--muted)}
+.dangerBtn{display:flex;width:100%;align-items:center;justify-content:center;gap:8px;font-size:13px;font-weight:600;color:var(--danger);border:1px solid rgba(224,122,108,.35);border-radius:11px;padding:10px;margin-top:8px;transition:.15s;background:transparent}
+.dangerBtn:hover{background:var(--danger-soft)}
+.dangerBtn .ic{width:15px;height:15px}
+.dangerBtn.solid{background:var(--danger-strong);color:var(--on-danger);border-color:var(--danger-strong);margin-top:0}
+.dangerBtn.solid:hover{background:#E88B7E}
+
+#modalWrap{position:fixed;inset:0;z-index:90;display:none;align-items:center;justify-content:center;background:rgba(8,8,6,.62);backdrop-filter:blur(3px);padding:20px}
+#modalWrap.show{display:flex}
+.modal{width:min(360px,100%);background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:24px;box-shadow:0 24px 64px -24px rgba(0,0,0,.7);animation:mIn .3s cubic-bezier(.22,1,.36,1)}
+@keyframes mIn{from{opacity:0;transform:translateY(12px) scale(.97)}}
+.micon{width:42px;height:42px;border-radius:13px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.micon .ic{width:20px;height:20px}
+.micon.warn{background:var(--danger-soft);color:var(--danger)}
+.mtitle{font-family:'Fraunces',Georgia,serif;font-size:20px;font-weight:600}
+.msub{font-size:13px;color:var(--muted);margin-top:4px;line-height:1.5}
+.mrow{display:flex;gap:8px;margin-top:18px}
+.flex1{flex:1}
+.mrow .ghost{justify-content:center}
+
+#toasts{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:120;display:flex;flex-direction:column;align-items:center;gap:8px;width:max-content;max-width:calc(100vw - 28px)}
+.toast{display:flex;align-items:center;gap:14px;background:#EDEAE0;color:#201E19;font-size:13px;font-weight:500;padding:10px 15px;border-radius:12px;box-shadow:0 10px 30px -10px rgba(0,0,0,.6);opacity:0;transform:translateY(10px);transition:.28s cubic-bezier(.22,1,.36,1)}
+.toast.in{opacity:1;transform:none}
+.toast.out{opacity:0;transform:translateY(6px)}
+
+.reveal{opacity:0;animation:up .6s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.bump{animation:bump .35s}
+@keyframes bump{50%{transform:scale(1.14)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+@media (max-width:620px){
+  .tb-in{padding:0 16px;height:54px}
+  main{padding:18px 16px 32px}
+  #weekCard{padding:18px 16px 14px}
+  .nums{font-size:40px}
+  .phead,.noneRow{padding-left:14px;padding-right:14px}
+  .task{padding:0 14px}
+  .awayCard{padding:12px 14px}
+  .assign{max-width:92px}
+  #drawer{top:auto;left:0;right:0;width:100%;max-height:88vh;border-left:0;border-top:1px solid var(--line);border-radius:20px 20px 0 0;transform:translateY(105%)}
+  #drawer.open{transform:none}
+  .foot{padding:4px 16px 28px}
+}
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<header id="topbar">
+  <div class="tb-in">
+    <span class="brand">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6h5v6"/></svg>
+      Housemates
+    </span>
+    <span class="tb-sp"></span>
+    <span id="hdrCount" title="Tasks done this week">0/0</span>
+    <button id="adminChip" data-act="openDrawer" hidden><span class="adot"></span>Manage</button>
+  </div>
+</header>
+
+<main>
+  <section id="weekCard" class="card" aria-label="Weekly progress"></section>
+  <div id="schedule" aria-label="This week's schedule"></div>
+  <section id="historySec" aria-label="History"></section>
+</main>
+
+<footer class="foot">
+  <span class="syncWrap"><span class="syncDot" id="syncDot"></span><span id="syncText">Loading…</span></span>
+</footer>
+
+<div id="scrim"></div>
+<aside id="drawer" role="dialog" aria-label="Manage panel">
+  <div class="dhead">
+    <div>
+      <div class="dtitle">Manage</div>
+      <div class="dsub">Admin · only you can see this</div>
+    </div>
+    <button class="iconBtn" data-act="closeDrawer" aria-label="Close panel">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12"/><path d="M18 6 6 18"/></svg>
+    </button>
+  </div>
+  <div class="dbody" id="drawerBody"></div>
+</aside>
+
+<div id="modalWrap"></div>
+<div id="toasts" aria-live="polite"></div>
+<div id="setupNotice"></div>
+
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+/* =========================================================
+   SETTINGS — unchanged from your original
+   ========================================================= */
+const SUPABASE_URL      = "https://widtbishlzkgjsxxpvgy.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_0DIUBHMT5L4Za0bJrZMdag_tWjokI6Z";
+const ROOM_KEY          = "iloveyou";     // must match the SQL
+const ADMIN_SECRET      = "doyouloveme"; // admin link: …/#admin=THIS
+/* ========================================================= */
+
+const TABLE = "chore_weeks";
+const PEOPLE = ["Andrea", "Aditya", "Marco", "Leonardo", "Raffaele"];
+const BATHROOMS = {
+  "Bathroom 1": ["Aditya", "Raffaele"],
+  "Bathroom 2": ["Andrea", "Marco", "Leonardo"]
+};
+const TASKS = [
+  { id:"surf_living",  name:"Living room surfaces" },
+  { id:"surf_kitchen", name:"Kitchen surfaces" },
+  { id:"vac_living",   name:"Vacuum living room + hallway" },
+  { id:"vac_kitchen",  name:"Vacuum kitchen" },
+  { id:"mop_living",   name:"Mop living room + hallway" },
+  { id:"mop_kitchen",  name:"Mop kitchen" },
+  { id:"b1_floor",     name:"Bathroom 1: vacuum + mop", pool:"Bathroom 1" },
+  { id:"b1_surf",      name:"Bathroom 1: surfaces",     pool:"Bathroom 1" },
+  { id:"b2_floor",     name:"Bathroom 2: vacuum + mop", pool:"Bathroom 2" },
+  { id:"b2_surf",      name:"Bathroom 2: surfaces",     pool:"Bathroom 2" },
+  { id:"g_carta",      name:"Garbage: carta" },
+  { id:"g_plastica",   name:"Garbage: plastica" },
+  { id:"g_glass",      name:"Garbage: glass" },
+  { id:"g_umido",      name:"Garbage: umido" },
+  { id:"g_indiff",     name:"Garbage: indifferenziata" },
+];
+
+/* ---------- UI-only constants ---------- */
+const AV = ["#5DBB8A","#64A7E0","#E0B45C","#E07A6C","#A78BDB"];
+const BIN_COLOR = { g_carta:"var(--carta)", g_plastica:"var(--plastica)", g_glass:"var(--vetro)", g_umido:"var(--umido)", g_indiff:"var(--indiff)" };
+const ICONS = {
+  copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>',
+  chat:'<path d="M21 11.8a8.4 8.4 0 0 1-12.3 7.4L3 21l1.8-5.6A8.4 8.4 0 1 1 21 11.8Z"/>',
+  download:'<path d="M12 3v12"/><path d="m6 9 6 6 6-6"/><path d="M4 21h16"/>',
+  shuffle:'<path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="m15 15 6 6"/><path d="m4 4 5 5"/>',
+  rotate:'<path d="M1 4v6h6"/><path d="M3.5 15a9 9 0 1 0 2.1-9.4L1 10"/>',
+  trash:'<path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="m6 6 1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14"/><path d="M10 11v6"/><path d="M14 11v6"/>',
+  chev:'<path d="m6 9 6 6 6-6"/>',
+  moon:'<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  sparkle:'<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/>',
+  alert:'<circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16.5h.01"/>',
+  check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>'
+};
+const I = (n, cls="") => `<svg class="ic ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;
+const tint = (hex,a) => { const n = parseInt(hex.slice(1),16); return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`; };
+const avStyle = p => { const c = AV[PEOPLE.indexOf(p) % AV.length]; return `background:${tint(c,.16)};color:${c}`; };
+
+const $ = id => document.getElementById(id);
+const configured = !/PASTE_|REPLACE_/.test(SUPABASE_URL + SUPABASE_ANON_KEY + ROOM_KEY + ADMIN_SECRET);
+const isAdmin = () => new URLSearchParams(location.hash.replace(/^#/, "")).get("admin") === ADMIN_SECRET;
+
+/* ---------- week (Europe/Rome) ---------- */
+function weekInfo(date = new Date()) {
+  const s = date.toLocaleString("sv-SE", { timeZone:"Europe/Rome" });
+  const d = new Date(s.replace(" ", "T") + "Z");
+  const t = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+  const day = t.getUTCDay() || 7;
+  const sunday = new Date(t); sunday.setUTCDate(t.getUTCDate() + (7 - day));
+  const monday = new Date(t); monday.setUTCDate(t.getUTCDate() - (day - 1));
+  t.setUTCDate(t.getUTCDate() + 4 - day);
+  const ys = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+  const wk = Math.ceil((((t - ys) / 86400000) + 1) / 7);
+  const fmt = x => x.toLocaleDateString("en-GB", { timeZone:"UTC", day:"numeric", month:"short" });
+  return {
+    key: `${t.getUTCFullYear()}-W${String(wk).padStart(2, "0")}`,
+    num: wk,
+    sunday: sunday.toLocaleDateString("en-GB", { timeZone:"UTC", weekday:"long", day:"numeric", month:"short" }),
+    range: `${fmt(monday)} – ${fmt(sunday)}`,
+    left: 7 - day
+  };
+}
+const WEEK = weekInfo();
+
+// display counter: Week 1 = the oldest week stored in the database (resets with "Reset everything")
+const wkIdx = k => {
+  const [y, w] = k.split("-W").map(Number);
+  const d = new Date(Date.UTC(y, 0, 4)).getUTCDay() || 7;
+  return Math.round(Date.UTC(y, 0, 4 - (d - 1) + (w - 1) * 7) / 604800000);
+};
+const weekNo = k => {
+  const first = [...Object.keys(db.weeks), k].sort()[0];
+  return wkIdx(k) - wkIdx(first) + 1;
+};
+
+/* ---------- state + database ---------- */
+let db = { weeks:{} };
+let sb = null;
+let busy = 0;
+const cur = () => db.weeks[WEEK.key];
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+function setSync(msg, err = false) {
+  $("syncText").textContent = msg;
+  $("syncDot").className = "syncDot" + (err ? " off" : /^Synced/.test(msg) ? " synced" : " busy");
+}
+const clock = () => new Date().toLocaleTimeString("en-GB", { timeZone:"Europe/Rome", hour:"2-digit", minute:"2-digit" });
+
+async function fetchAll() {
+  const { data, error } = await sb.from(TABLE).select("week_key,state").eq("room_key", ROOM_KEY);
+  if (error) throw error;
+  const weeks = {};
+  for (const row of data) weeks[row.week_key] = row.state;
+  db.weeks = weeks;
+}
+
+// read → change → write only if nobody else changed it in between (retry otherwise)
+async function mutateWeek(key, fn) {
+  busy++;
+  try {
+    for (let attempt = 0; attempt < 6; attempt++) {
+      const { data: row, error } = await sb.from(TABLE).select("state,updated_at")
+        .eq("room_key", ROOM_KEY).eq("week_key", key).single();
+      if (error) throw error;
+      const state = JSON.parse(JSON.stringify(row.state || {}));
+      fn(state);
+      const { data: upd, error: e2 } = await sb.from(TABLE)
+        .update({ state, updated_at: new Date().toISOString() })
+        .eq("room_key", ROOM_KEY).eq("week_key", key).eq("updated_at", row.updated_at)
+        .select("state");
+      if (e2) throw e2;
+      if (upd && upd.length === 1) { db.weeks[key] = upd[0].state; return; }
+      await wait(80 + attempt * 70);
+    }
+    throw new Error("Someone else was saving at the same moment. Please try again.");
+  } finally { busy--; }
+}
+
+/* ---------- assignment ---------- */
+const hash = s => { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; };
+
+function previousWeek(key) {
+  const keys = Object.keys(db.weeks).filter(k => k < key).sort();
+  return keys.length ? db.weeks[keys[keys.length - 1]] : null;
+}
+
+// unfinished tasks per person in the last finished week
+function lastMissed(key) {
+  const prev = previousWeek(key);
+  const out = Object.fromEntries(PEOPLE.map(p => [p, 0]));
+  if (!prev || !prev.assign) return out;
+  for (const [taskId, person] of Object.entries(prev.assign)) {
+    if (out[person] !== undefined && !prev.done?.[taskId]) out[person]++;
+  }
+  return out;
+}
+
+function generate(key, away, seed = key) {
+  const active = PEOPLE.filter(p => !away.includes(p));
+  if (!active.length) return {};
+
+  const prev = previousWeek(key);
+  const missed = lastMissed(key);
+
+  // how many times each person has already had each task
+  const times = Object.fromEntries(PEOPLE.map(p => [p, {}]));
+  for (const wk of Object.keys(db.weeks)) {
+    if (wk >= key) continue;
+    for (const [taskId, person] of Object.entries(db.weeks[wk].assign || {})) {
+      if (times[person]) times[person][taskId] = (times[person][taskId] || 0) + 1;
+    }
+  }
+  // more past turns = worse, same task as last week = much worse
+  const repeat = (p, t) => (times[p][t.id] || 0) * 60 + (prev?.assign?.[t.id] === p ? 300 : 0);
+
+  const poolFor = t => {
+    if (t.pool) {
+      const m = BATHROOMS[t.pool].filter(p => active.includes(p));
+      if (m.length) return m;
+    }
+    return active;
+  };
+
+  // seeded random: a given week always produces the same result
+  let s = hash(seed);
+  const rng = () => {
+    s = (s + 0x6D2B79F5) | 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+
+  // try many random orders, keep the one where nobody gets a task they've had recently
+  let best = null;
+  for (let i = 0; i < 300; i++) {
+    const order = [...TASKS];
+    for (let j = order.length - 1; j > 0; j--) {
+      const k = Math.floor(rng() * (j + 1));
+      [order[j], order[k]] = [order[k], order[j]];
+    }
+    // people who missed tasks last week start "behind", so they pick up extra tasks (capped at +3)
+    const load = Object.fromEntries(PEOPLE.map(p => [p, -Math.min(missed[p], 3)]));
+    const trial = {};
+    let score = 0;
+    for (const t of order) {
+      const choices = poolFor(t).map(p => [load[p] * 1000 + repeat(p, t) + rng() * 5, p]).sort((a, b) => a[0] - b[0]);
+      const p = choices[0][1];
+      trial[t.id] = p;
+      load[p]++;
+      score += repeat(p, t);
+    }
+    score += PEOPLE.reduce((sum, p) => sum + load[p] * load[p], 0) * 1000;
+    if (!best || score < best.score) best = { score, trial };
+  }
+  return best.trial;
+}
+
+async function ensureWeek() {
+  if (cur()) return;
+  const state = { away: [], done: {}, assign: generate(WEEK.key, []) };
+  const { error } = await sb.from(TABLE).insert({
+    room_key: ROOM_KEY, week_key: WEEK.key, state, updated_at: new Date().toISOString()
+  });
+  if (error) {               // another phone created it first → use theirs
+    await fetchAll();
+    if (!cur()) throw error;
+    return;
+  }
+  db.weeks[WEEK.key] = state;
+}
+
+function eligible(task) {
+  const active = PEOPLE.filter(p => !cur().away.includes(p));
+  if (task.pool) {
+    const m = BATHROOMS[task.pool].filter(p => active.includes(p));
+    if (m.length) return m;
+  }
+  return active;
+}
+
+/* ---------- toasts / modal / drawer ---------- */
+function toast(msg) {
+  const wrap = $("toasts");
+  while (wrap.children.length >= 3) wrap.firstChild.remove();
+  const el = document.createElement("div");
+  el.className = "toast"; el.textContent = msg;
+  wrap.appendChild(el);
+  requestAnimationFrame(() => el.classList.add("in"));
+  setTimeout(() => { el.classList.remove("in"); el.classList.add("out"); setTimeout(() => el.remove(), 260); }, 3200);
+}
+function confirmModal({ title, text, okLabel, danger }) {
+  return new Promise(resolve => {
+    const w = $("modalWrap");
+    w.innerHTML = `<div class="modal" role="dialog" aria-modal="true">
+      <div class="micon ${danger ? "warn" : ""}">${I("alert")}</div>
+      <div class="mtitle">${title}</div><div class="msub">${text}</div>
+      <div class="mrow">
+        <button class="ghost flex1" id="mNo">Cancel</button>
+        ${danger ? `<button class="dangerBtn solid flex1" id="mYes">${okLabel}</button>` : `<button class="primary flex1" id="mYes">${okLabel}</button>`}
+      </div></div>`;
+    w.classList.add("show");
+    const done = v => { w.classList.remove("show"); w.innerHTML = ""; w.onclick = null; resolve(v); };
+    $("mNo").onclick = () => done(false);
+    $("mYes").onclick = () => done(true);
+    w.onclick = e => { if (e.target === w) done(false); };
+    $("mNo").focus();
+  });
+}
+function openDrawer() {
+  $("scrim").classList.add("show"); $("drawer").classList.add("open"); document.body.classList.add("noScroll");
+}
+function closeDrawer() {
+  $("scrim").classList.remove("show"); $("drawer").classList.remove("open"); document.body.classList.remove("noScroll");
+}
+
+/* ---------- render ---------- */
+let histOpen = true, histAll = false, firstRender = true;
+const pulse = el => { if (!el) return; el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump"); };
+
+function render() {
+  const w = cur();
+  if (!w) return;
+  const admin = isAdmin();
+  const anim = firstRender; firstRender = false;
+
+  const total = TASKS.length;
+  const doneN = TASKS.filter(t => w.done?.[t.id]).length;
+  const complete = doneN === total;
+  const remaining = total - doneN;
+
+  // header
+  const hc = $("hdrCount");
+  hc.textContent = `${doneN}/${total}`;
+  hc.classList.toggle("ok", complete);
+  $("adminChip").hidden = !admin;
+  if (!admin && $("drawer").classList.contains("open")) closeDrawer();
+
+  // week card
+  let dueCls = "", dueTxt;
+  if (complete) { dueCls = "ok"; dueTxt = "All done"; }
+  else if (WEEK.left === 0) { dueCls = "soon"; dueTxt = "Due tonight"; }
+  else if (WEEK.left === 1) { dueCls = "soon"; dueTxt = "Due Sun · 1 day left"; }
+  else dueTxt = `Due Sun 23:59 · ${WEEK.left} days left`;
+
+  const card = $("weekCard");
+  card.className = "card" + (complete ? " complete" : "") + (anim ? " reveal" : "");
+  card.innerHTML = `
+    <div class="wtop">
+      <span class="eyebrow">Week ${weekNo(WEEK.key)} · ${WEEK.range}</span>
+      <span class="chips"><span class="chip ${dueCls}">${I(complete ? "sparkle" : "clock")}${dueTxt}</span></span>
+    </div>
+    <div class="wbig">
+      <span class="nums"><b>${doneN}</b><span class="of">/ ${total}</span></span>
+      <span class="wlabel">tasks<br>done</span>
+      <span class="spark ${complete ? "show" : ""}">${I("sparkle")}</span>
+    </div>
+    <div class="bar"><span style="width:${doneN / total * 100}%"></span></div>
+    <div class="wsub ${complete ? "ok" : ""}">${complete ? "All done — enjoy your week ✨" : `${remaining} task${remaining === 1 ? "" : "s"} to go`}</div>
+    <div class="wacts">
+      <button class="ghost" data-act="copyRecap">${I("copy")}Copy recap</button>
+      <button class="ghost" data-act="whatsapp">${I("chat")}WhatsApp</button>
+    </div>`;
+
+  // schedule
+  const missedLast = lastMissed(WEEK.key);
+  let html = "", idx = 0;
+  const delay = () => anim ? `style="animation-delay:${(0.1 + idx * 0.07).toFixed(2)}s"` : "";
+  for (const p of PEOPLE) {
+    const cls = `card person${anim ? " reveal" : ""}`;
+    if (w.away.includes(p)) {
+      html += `<div class="${cls} awayCard" ${delay()}>
+        <span class="avatar" style="${avStyle(p)}">${p[0]}</span>
+        <span class="pname dim">${p}</span>
+        <span class="awayTag">${I("moon")}Away this week</span></div>`;
+      idx++; continue;
+    }
+    const mine = TASKS.filter(t => w.assign[t.id] === p);
+    const d = mine.filter(t => w.done?.[t.id]).length;
+    const tag = missedLast[p] > 0
+      ? `<span class="tag" title="Missed ${missedLast[p]} task${missedLast[p] === 1 ? "" : "s"} last week">bitch</span>` : "";
+    html += `<div class="${cls}" ${delay()}>
+      <div class="phead">
+        <span class="avatar" style="${avStyle(p)}">${p[0]}</span>
+        <span class="pname">${p}${tag}</span>
+        <span class="pill ${mine.length && d === mine.length ? "ok" : ""}">${mine.length ? `${d}/${mine.length}` : "—"}</span>
+      </div>
+      ${mine.length ? mine.map(t => {
+        const isDone = !!w.done?.[t.id];
+        const dot = BIN_COLOR[t.id] ? `<span class="dot" style="background:${BIN_COLOR[t.id]}"></span>` : "";
+        const sel = admin ? `<select class="assign" data-assign="${t.id}" aria-label="Reassign ${t.name}">${
+          eligible(t).map(x => `<option value="${x}" ${x === p ? "selected" : ""}>${x}</option>`).join("")}</select>` : "";
+        return `<div class="task ${isDone ? "done" : ""}">
+          <label class="tmain">
+            <input type="checkbox" data-check="${t.id}" ${isDone ? "checked" : ""} aria-label="${t.name}">
+            <span class="box">${I("check", "tick")}</span>
+            <span class="tname">${dot}${t.name}</span>
+          </label>${sel}</div>`;
+      }).join("") : `<div class="noneRow">Nothing assigned.</div>`}
+    </div>`;
+    idx++;
+  }
+  $("schedule").innerHTML = html;
+
+  renderHistory();
+  renderDrawer(admin, w);
+}
+
+function renderHistory() {
+  const keys = Object.keys(db.weeks).filter(k => k < WEEK.key).sort().reverse();
+  const shown = histAll ? keys : keys.slice(0, 8);
+  const rows = shown.map(k => {
+    const raw = db.weeks[k] || {};
+    const assign = raw.assign || {}, done = raw.done || {};
+    const doneN = TASKS.filter(t => done[t.id]).length;
+    const pct = Math.round(doneN / TASKS.length * 100);
+    const per = PEOPLE.map(p => {
+      const mine = TASKS.filter(t => assign[t.id] === p);
+      return { p, d: mine.filter(t => done[t.id]).length, n: mine.length };
+    }).filter(x => x.n > 0).map(x => `${x.p} ${x.d}/${x.n}`).join(" · ") || "—";
+    const awayLine = (raw.away || []).length ? ` · away: ${raw.away.join(", ")}` : "";
+    return `<div class="hrow">
+      <div class="htop"><span class="hlabel">Week ${weekNo(k)} · ${k.split("-W")[0]}</span>
+        <span class="hbar"><span style="width:${pct}%"></span></span>
+        <span class="hcount">${doneN}/${TASKS.length}</span></div>
+      <div class="hper">${per}${awayLine}</div></div>`;
+  }).join("");
+  const more = keys.length > 8
+    ? `<button class="hmore" data-act="moreHist">${histAll ? "Show less" : `Show ${keys.length - 8} more`}</button>` : "";
+  $("historySec").innerHTML = `
+    <button class="hhead" data-act="toggleHistory" aria-expanded="${histOpen}">
+      <span class="eyebrow">History</span>${I("chev", histOpen ? "" : "closed")}
+    </button>
+    <div class="hwrap ${histOpen ? "" : "closed"}"><div class="hinner">
+      ${rows || '<div class="hrow"><div class="hper">No finished weeks yet — this one becomes the first.</div></div>'}
+      ${more}
+    </div></div>`;
+}
+
+function renderDrawer(admin, w) {
+  const body = $("drawerBody");
+  if (!admin) { body.innerHTML = ""; return; }
+  body.innerHTML = `
+    <div class="secLbl">Away this week</div>
+    ${PEOPLE.map(p => `<div class="prow">
+      <span class="avatar sm" style="${avStyle(p)}">${p[0]}</span>
+      <span class="nm">${p}</span>
+      <span class="awayLbl">away</span>
+      <label class="sw"><input type="checkbox" data-away="${p}" ${w.away.includes(p) ? "checked" : ""} aria-label="${p} away this week"><span class="tr"><span class="kn"></span></span></label>
+    </div>`).join("")}
+    <p class="hint">Tasks are reshuffled when you change who’s away. You can also reassign any task with the dropdowns on the cards.</p>
+    <div class="secLbl">This week</div>
+    <div class="tools">
+      <button class="tool" data-act="reshuffle">${I("shuffle")}Reshuffle</button>
+      <button class="tool" data-act="clearChecks">${I("rotate")}Clear checkmarks</button>
+      <button class="tool" data-act="export">${I("download")}Export JSON</button>
+    </div>
+    <div class="secLbl">Danger zone</div>
+    <button class="dangerBtn" data-act="resetAll">${I("trash")}Reset everything</button>`;
+}
+
+async function adminAction(msg, fn) {
+  setSync(msg);
+  try { await fn(); setSync(`Synced ${clock()}`); }
+  catch (e) { console.error(e); setSync("Something went wrong", true); alert(e.message || "Something went wrong."); }
+  render();
+}
+
+/* ---------- recap / export ---------- */
+function recapText() {
+  const w = cur();
+  const n = TASKS.filter(t => w.done?.[t.id]).length;
+  const L = [`🏠 Housemates — Week ${weekNo(WEEK.key)} (${WEEK.range})`, `${n}/${TASKS.length} tasks done · due ${WEEK.sunday}, 23:59`, ""];
+  for (const p of PEOPLE) {
+    if (w.away.includes(p)) { L.push(`🌙 ${p} — away this week`, ""); continue; }
+    const mine = TASKS.filter(t => w.assign[t.id] === p);
+    L.push(`${p} — ${mine.filter(t => w.done?.[t.id]).length}/${mine.length}`);
+    mine.forEach(t => L.push(`${w.done?.[t.id] ? "✅" : "⬜"} ${t.name}`));
+    L.push("");
+  }
+  while (L.length && L[L.length - 1] === "") L.pop();
+  return L.join("\n");
+}
+function copyText(text, msg) {
+  const fallback = () => {
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text; ta.style.cssText = "position:fixed;opacity:0";
+      document.body.appendChild(ta); ta.select();
+      const ok = document.execCommand("copy"); ta.remove();
+      toast(ok ? msg : "Couldn't copy on this browser");
+    } catch (e) { toast("Couldn't copy on this browser"); }
+  };
+  if (navigator.clipboard?.writeText) navigator.clipboard.writeText(text).then(() => toast(msg)).catch(fallback);
+  else fallback();
+}
+function exportJson() {
+  const w = cur();
+  const data = {
+    app:"Housemates", exportedAt:new Date().toISOString(),
+    week:{ key:WEEK.key, label:WEEK.range, due:`${WEEK.sunday} 23:59` },
+    away:w.away,
+    tasks:TASKS.map(t => ({ task:t.name, assignee:w.assign[t.id] || null, done:!!w.done?.[t.id] }))
+  };
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type:"application/json" }));
+  a.download = `housemates-${WEEK.key}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  toast("Week exported as JSON");
+}
+
+/* ---------- events ---------- */
+document.addEventListener("change", async e => {
+  const t = e.target;
+
+  if (t.matches("[data-check]")) {
+    const id = t.dataset.check, desired = t.checked;
+    const w = cur();
+    w.done = w.done || {};
+    w.done[id] = desired;                 // instant feedback
+    render();
+    pulse($("hdrCount"));
+    try {
+      await mutateWeek(WEEK.key, s => { s.done = s.done || {}; s.done[id] = desired; });
+      setSync(`Synced ${clock()}`);
+    } catch (err) {
+      console.error(err);
+      const c = cur(); if (c) { c.done = c.done || {}; c.done[id] = !desired; }
+      setSync("Could not save — check your connection", true);
+      alert(err.message || "Could not save.");
+    }
+    render();
+  }
+
+  else if (t.matches("[data-assign]")) {
+    const id = t.dataset.assign, val = t.value;
+    adminAction("Saving…", () => mutateWeek(WEEK.key, s => { s.assign[id] = val; s.done[id] = false; }));
+  }
+
+  else if (t.matches("[data-away]")) {
+    const p = t.dataset.away;
+    adminAction("Saving…", async () => {
+      await fetchAll();
+      const away = cur().away.includes(p) ? cur().away.filter(x => x !== p) : [...cur().away, p];
+      const assign = generate(WEEK.key, away);
+      await mutateWeek(WEEK.key, s => { s.away = away; s.assign = assign; s.done = {}; });
+    });
+  }
+});
+
+document.addEventListener("click", async e => {
+  if (e.target.id === "scrim") { closeDrawer(); return; }
+  const el = e.target.closest("[data-act]"); if (!el) return;
+  switch (el.dataset.act) {
+    case "openDrawer": openDrawer(); break;
+    case "closeDrawer": closeDrawer(); break;
+    case "copyRecap": copyText(recapText(), "Recap copied"); break;
+    case "whatsapp":
+      window.open("https://wa.me/?text=" + encodeURIComponent(recapText()), "_blank", "noopener");
+      break;
+    case "export": exportJson(); break;
+    case "toggleHistory": histOpen = !histOpen; renderHistory(); break;
+    case "moreHist": histAll = !histAll; renderHistory(); break;
+
+    case "reshuffle":
+      if (!await confirmModal({ title:"Reshuffle this week?", text:"Assignments are redrawn and all checkmarks are cleared.", okLabel:"Reshuffle" })) break;
+      adminAction("Reshuffling…", async () => {
+        await fetchAll();
+        const assign = generate(WEEK.key, cur().away, WEEK.key + ":" + Date.now());
+        await mutateWeek(WEEK.key, s => { s.assign = assign; s.done = {}; });
+      });
+      break;
+
+    case "clearChecks":
+      if (!await confirmModal({ title:"Clear checkmarks?", text:"All checkmarks for this week will be removed.", okLabel:"Clear" })) break;
+      adminAction("Clearing…", () => mutateWeek(WEEK.key, s => { s.done = {}; }));
+      break;
+
+    case "resetAll":
+      if (!await confirmModal({ title:"Reset everything?", text:"Deletes all past weeks and this week’s data. This cannot be undone.", okLabel:"Reset", danger:true })) break;
+      adminAction("Resetting…", async () => {
+        const { error } = await sb.from(TABLE).delete().eq("room_key", ROOM_KEY);
+        if (error) throw error;
+        db = { weeks:{} };
+        await ensureWeek();
+        closeDrawer();
+      });
+      break;
+  }
+});
+
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeDrawer(); });
+window.addEventListener("scroll", () => $("topbar").classList.toggle("scrolled", window.scrollY > 8), { passive:true });
+
+/* ---------- live updates ---------- */
+async function refresh() {
+  if (busy) return;
+  try {
+    await fetchAll();
+    await ensureWeek();
+    render();
+    setSync(`Synced ${clock()}`);
+  } catch (e) {
+    console.error(e);
+    setSync("Offline — showing last known list", true);
+  }
+}
+
+async function boot() {
+  if (!configured) {
+    $("weekCard").hidden = true;
+    $("historySec").hidden = true;
+    $("setupNotice").innerHTML = `<div class="notice" style="max-width:640px;margin:24px auto"><b>Almost there.</b> Open <code>index.html</code> and fill in the four settings at the top of the script (project URL, anon key, room key, admin secret), then reload.</div>`;
+    setSync("Setup needed", true);
+    return;
+  }
+  sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  setSync("Loading…");
+  await refresh();
+
+  try {
+    sb.channel("chores")
+      .on("postgres_changes", { event:"*", schema:"public", table:TABLE, filter:`room_key=eq.${ROOM_KEY}` }, refresh)
+      .subscribe();
+  } catch (e) { console.warn("Realtime not active", e); }
+
+  setInterval(refresh, 20000);                                          // backup if realtime drops
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh(); });
+  window.addEventListener("hashchange", render);
+}
+boot();
+</script>
+</body>
+</html>
